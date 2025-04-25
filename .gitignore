@@ -1,0 +1,28 @@
+# .gitignore (Should be in your project root)
+# Python
+__pycache__/
+*.py[cod]
+*.class
+*.sqlite3
+
+# Django
+/static/
+/media/
+
+# Environment
+.env
+*.env
+
+# Docker
+docker-compose.override.yml
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE specific files
+.idea/
+.vscode/
+
+# Virtual environment
+venv/

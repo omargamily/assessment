@@ -1,0 +1,39 @@
+# docker-compose.yml (Simplified Command)
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: bnpl_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=bnpl_db
+      - POSTGRES_USER=bnpl_user
+      - POSTGRES_PASSWORD=bnpl_password
+    ports:
+      - 5432:5432
+    networks:
+      - bnpl_network
+
+  backend:
+    build: .
+    container_name: bnpl_backend
+    volumes:
+      - ./backend:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    command: > 
+      sh -c "python manage.py migrate &&
+        python manage.py runserver 0.0.0.0:8000"
+    networks:
+      - bnpl_network
+
+volumes:
+  postgres_data:
+
+networks:
+  bnpl_network:
+    driver: bridge
