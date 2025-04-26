@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from .services import create_user_with_group
 
 User = get_user_model()

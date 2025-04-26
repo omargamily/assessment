@@ -1,3 +1,5 @@
+# accounts/models.py
+import uuid  # Add this import
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 
@@ -8,6 +10,8 @@ class UserManager(BaseUserManager):
             raise ValueError('Users must have an email address')
         
         email = self.normalize_email(email)
+        # Ensure id is not passed in extra_fields if it's auto-generated
+        extra_fields.pop('id', None)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -20,7 +24,9 @@ class UserManager(BaseUserManager):
         
         if not extra_fields.get('is_superuser'):
             raise ValueError('Superuser must have is_superuser=True.')
-        
+
+        # Ensure id is not passed in extra_fields if it's auto-generated
+        extra_fields.pop('id', None)
         return self.create_user(email, password, **extra_fields)
 
 
@@ -30,7 +36,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('user', 'User'),
         ('staff', 'Staff'),
     ]
-    
+
+    # Add the UUID primary key field
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     is_active = models.BooleanField(default=True)
