@@ -20,3 +20,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             role=validated_data['role']
         )
+
+class UserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'role', 'created_at']

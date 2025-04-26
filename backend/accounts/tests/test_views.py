@@ -159,3 +159,56 @@ class TokenRefreshViewTests(BaseAuthTestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('access', response.data)
+
+class UserListViewTests(APITestCase):
+    def setUp(self):
+        # Create necessary groups
+        self.merchant_group = Group.objects.create(name='Merchant')
+        self.user_group = Group.objects.create(name='User')
+
+        # Create a merchant user
+        self.merchant = User.objects.create_user(
+            email='merchant@test.com',
+            password='password123',
+            role='merchant'
+        )
+        self.merchant.groups.add(self.merchant_group)
+
+        # Create regular users
+        self.user1 = User.objects.create_user(
+            email='user1@test.com',
+            password='password123',
+            role='user'
+        )
+        self.user1.groups.add(self.user_group)
+
+        self.user2 = User.objects.create_user(
+            email='user2@test.com',
+            password='password123',
+            role='user'
+        )
+        self.user2.groups.add(self.user_group)
+
+        # URL for listing users
+        self.url = reverse('accounts:user-list')
+
+    def test_merchant_can_list_users(self):
+        """Test that a merchant can successfully list all users"""
+        self.client.force_authenticate(user=self.merchant)
+        response = self.client.get(self.url)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)  # Should return both users
+        self.assertNotIn('password', response.data[0])  # Ensure password is not exposed
+        
+        # Verify the returned data contains our test users
+        emails = [user['email'] for user in response.data]
+        self.assertIn(self.user1.email, emails)
+        self.assertIn(self.user2.email, emails)
+
+    def test_user_cannot_list_users(self):
+        """Test that a regular user cannot access the list users endpoint"""
+        self.client.force_authenticate(user=self.user1)
+        response = self.client.get(self.url)
+        
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
