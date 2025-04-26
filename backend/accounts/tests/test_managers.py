@@ -15,6 +15,7 @@ class UserManagerTests(TestCase):
         )
 
         self.assertIsNotNone(user)
+        self.assertIsNotNone(user.id)
         self.assertEqual(user.email, email)
         self.assertEqual(user.role, role)
         self.assertTrue(user.is_active)

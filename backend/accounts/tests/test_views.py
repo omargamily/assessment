@@ -113,3 +113,49 @@ class UserRegistrationViewTests(APITestCase):
         """Test GET method not allowed"""
         response = self.client.get(reverse('accounts:register'))
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+class BaseAuthTestCase(APITestCase):
+    """Base class for tests needing an authenticated user."""
+    def setUp(self):
+        self.email = 'testbase@example.com'
+        self.password = 'password123'
+        self.user = User.objects.create_user(
+            email=self.email,
+            password=self.password,
+            role='user'
+        )
+
+class TokenObtainPairViewTests(BaseAuthTestCase):
+    """Tests for the sign-in view."""
+    def test_signin_success(self):
+        url = reverse('accounts:token_obtain_pair')
+        data = {'email': self.email, 'password': self.password}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('access', response.data)
+        self.assertIn('refresh', response.data)
+
+class TokenRefreshViewTests(BaseAuthTestCase):
+    """Tests for the token refresh view."""
+    def setUp(self):
+        super().setUp()
+        signin_url = reverse('accounts:token_obtain_pair')
+        signin_data = {'email': self.email, 'password': self.password}
+        signin_response = self.client.post(signin_url, signin_data, format='json')
+        if signin_response.status_code == status.HTTP_200_OK:
+             self.refresh_token = signin_response.data.get('refresh')
+        else:
+             self.fail(f"Failed to sign in during setUp for TokenRefreshViewTests. Status: {signin_response.status_code}, Data: {signin_response.data}")
+        # Ensure refresh token was actually obtained
+        if not hasattr(self, 'refresh_token') or not self.refresh_token:
+            self.fail("Refresh token not obtained during setUp for TokenRefreshViewTests.")
+
+
+    def test_token_refresh_success(self):
+        url = reverse('accounts:token_refresh')
+        if not hasattr(self, 'refresh_token') or not self.refresh_token:
+             self.fail("Cannot run test_token_refresh_success: refresh_token not set in setUp.")
+        data = {'refresh': self.refresh_token}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('access', response.data)
