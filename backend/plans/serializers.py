@@ -1,5 +1,5 @@
-# plans/serializers.py
 from rest_framework import serializers
+from plans.models.installment import Installment
 from .models import PaymentPlan
 from django.contrib.auth import get_user_model
 from .services import create_payment_plan
@@ -49,3 +49,29 @@ class PaymentPlanCreateSerializer(serializers.ModelSerializer):
             **validated_data
         )
         return plan
+class InstallmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Installment
+        fields = ['id', 'due_date', 'amount', 'status', 'created_at', 'updated_at']
+        read_only_fields = fields
+class PaymentPlanListSerializer(serializers.ModelSerializer):
+    installments = InstallmentSerializer(many=True, read_only=True)
+    user_email = serializers.EmailField(source='user.email', read_only=True)
+    merchant_email = serializers.EmailField(source='merchant.email', read_only=True)
+
+
+    class Meta:
+        model = PaymentPlan
+        fields = [
+            'id',
+            'merchant_email',
+            'user_email',    
+            'total_amount',
+            'number_of_installments',
+            'start_date',
+            'status',
+            'created_at',
+            'updated_at',
+            'installments' 
+        ]
+        read_only_fields = fields
