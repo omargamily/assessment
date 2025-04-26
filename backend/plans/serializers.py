@@ -75,3 +75,24 @@ class PaymentPlanListSerializer(serializers.ModelSerializer):
             'installments' 
         ]
         read_only_fields = fields
+
+class InstallmentPaySerializer(serializers.Serializer):
+    def validate(self, attrs):
+        # Get installment from view context
+        installment = self.context.get('installment')
+        if not installment:
+            raise serializers.ValidationError("Installment not found")
+
+        # Validate installment belongs to user
+        user = self.context.get('request').user
+        if installment.plan.user_id != user.id:
+            raise serializers.ValidationError("This installment does not belong to you")
+        
+        # Validate installment status is valid for payment
+        if installment.status == 'Paid':
+            raise serializers.ValidationError("This installment is already paid")
+        
+        if installment.status not in ['Pending', 'Due', 'Late']:
+            raise serializers.ValidationError("Invalid installment status for payment")
+
+        return attrs

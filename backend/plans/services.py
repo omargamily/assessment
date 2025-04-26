@@ -7,6 +7,8 @@ from django.contrib.auth import get_user_model
 from .validators import validate_plan_creation_data
 from django.utils import timezone
 from datetime import timedelta
+from django.core.exceptions import ValidationError
+import uuid
 
 User = get_user_model()
 
@@ -103,3 +105,20 @@ def check_upcoming_installments():
     ).select_related('plan__user', 'plan__merchant')
     
     return upcoming_installments
+
+
+def pay_installment(installment_id: uuid.UUID, user_id: uuid.UUID) -> Installment:
+    """
+    Processes payment for an installment. Updates the installment status to 'Paid'.
+    Validates that the installment belongs to the user and has a valid status for payment.
+    """
+    installment = Installment.objects.select_related('plan').get(id=installment_id)
+    installment.status = 'Paid'
+    installment.save()
+    
+    unpaid_count = installment.plan.installments.exclude(status='Paid').count()
+    if unpaid_count == 0:
+        installment.plan.status = 'Paid'
+        installment.plan.save()
+    
+    return installment

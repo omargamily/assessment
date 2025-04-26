@@ -2,10 +2,13 @@ from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from decimal import Decimal
-from plans.services import create_payment_plan, update_installment_statuses
+from plans.services import create_payment_plan, update_installment_statuses, pay_installment
 from plans.models import PaymentPlan, Installment
 from dateutil.relativedelta import relativedelta
 from django.db import transaction
+from django.core.exceptions import ValidationError
+import uuid
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -277,3 +280,93 @@ class UpdateInstallmentStatusesTests(TestCase):
         # Assert status hasn't changed and no installments were updated
         self.assertEqual(paid_installment.status, 'Paid')
         self.assertEqual(updated_count, 0)
+
+class PayInstallmentServiceTests(TestCase):
+    def setUp(self):
+        # Create a user
+        self.user = User.objects.create_user(
+            email='user@test.com',
+            password='password123',
+            role='user'
+        )
+        
+        self.other_user = User.objects.create_user(
+            email='other@test.com',
+            password='password123',
+            role='user'
+        )
+        
+        self.merchant = User.objects.create_user(
+            email='merchant@test.com',
+            password='password123',
+            role='merchant'
+        )
+
+        # Create a payment plan
+        self.plan = PaymentPlan.objects.create(
+            merchant=self.merchant,
+            user=self.user,
+            total_amount=Decimal('1000.00'),
+            number_of_installments=4,
+            start_date=timezone.now().date()
+        )
+
+        # Create installments with different statuses
+        self.pending_installment = Installment.objects.create(
+            plan=self.plan,
+            due_date=timezone.now().date(),
+            amount=Decimal('250.00'),
+            status='Pending'
+        )
+        
+        self.due_installment = Installment.objects.create(
+            plan=self.plan,
+            due_date=timezone.now().date(),
+            amount=Decimal('250.00'),
+            status='Due'
+        )
+        
+        self.late_installment = Installment.objects.create(
+            plan=self.plan,
+            due_date=timezone.now().date() - timedelta(days=1),
+            amount=Decimal('250.00'),
+            status='Late'
+        )
+        
+        self.paid_installment = Installment.objects.create(
+            plan=self.plan,
+            due_date=timezone.now().date(),
+            amount=Decimal('250.00'),
+            status='Paid'
+        )
+
+    def test_successful_payment_pending(self):
+        """Test successful payment of a pending installment"""
+        updated_installment = pay_installment(self.pending_installment.id, self.user.id)
+        self.assertEqual(updated_installment.status, 'Paid')
+        
+    def test_successful_payment_due(self):
+        """Test successful payment of a due installment"""
+        updated_installment = pay_installment(self.due_installment.id, self.user.id)
+        self.assertEqual(updated_installment.status, 'Paid')
+        
+    def test_successful_payment_late(self):
+        """Test successful payment of a late installment"""
+        updated_installment = pay_installment(self.late_installment.id, self.user.id)
+        self.assertEqual(updated_installment.status, 'Paid')
+
+    def test_nonexistent_installment(self):
+        """Test payment of non-existent installment"""
+        with self.assertRaises(Installment.DoesNotExist):
+            pay_installment(uuid.uuid4(), self.user.id)
+
+    def test_plan_status_update(self):
+        """Test that plan status updates to Paid when all installments are paid"""
+        # Pay all unpaid installments
+        pay_installment(self.pending_installment.id, self.user.id)
+        pay_installment(self.due_installment.id, self.user.id)
+        pay_installment(self.late_installment.id, self.user.id)
+        
+        # Refresh plan from database
+        self.plan.refresh_from_db()
+        self.assertEqual(self.plan.status, 'Paid')
