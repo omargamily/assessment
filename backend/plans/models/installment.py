@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from .payment_plan import PaymentPlan
 
@@ -8,7 +9,7 @@ class Installment(models.Model):
         ('Paid', 'Paid'),
         ('Late', 'Late')
     ]
-
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     plan = models.ForeignKey(
         PaymentPlan,
         on_delete=models.CASCADE,

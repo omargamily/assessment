@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.conf import settings
 from decimal import Decimal
@@ -8,7 +9,7 @@ class PaymentPlan(models.Model):
         ('Active', 'Active'),
         ('Paid', 'Paid'),
     ]
-
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     merchant = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
