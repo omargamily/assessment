@@ -24,7 +24,7 @@ schema_view = get_schema_view(
     openapi.Info(
         title="BuildNow API",
         default_version='v1',
-        description="API documentation for BuildNow project",
+        description="API documentation for BuildNow project. Use Bearer token authentication by first getting a token from /api/accounts/signin/",
         terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(email="contact@buildnow.local"),
         license=openapi.License(name="BSD License"),

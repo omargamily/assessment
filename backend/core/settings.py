@@ -154,6 +154,16 @@ REST_FRAMEWORK = {
     )
 }
 
+SWAGGER_SETTINGS = {
+   'SECURITY_DEFINITIONS': {
+      'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+      }
+   }
+}
+
 SIMPLE_JWT = {
     # You can customize token lifetimes here, but we'll use defaults for now
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),

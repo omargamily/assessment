@@ -59,11 +59,17 @@ class InstallmentPayView(generics.CreateAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
+        
+        # Skip queryset lookup during schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return context
+            
         installment_id = self.kwargs.get('id')
-        try:
-            context['installment'] = self.queryset.get(id=installment_id)
-        except Installment.DoesNotExist:
-            raise Http404("Installment not found")
+        if installment_id:
+            try:
+                context['installment'] = self.queryset.get(id=installment_id)
+            except Installment.DoesNotExist:
+                raise Http404("Installment not found")
         return context
 
     def create(self, request, *args, **kwargs):
