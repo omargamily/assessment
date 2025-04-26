@@ -18,14 +18,18 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
+# Define a timezone-aware now function for pickling
+def get_asia_riyadh_now():
+    return datetime.now(pytz.timezone('Asia/Riyadh'))
+
 # Configure periodic tasks
 app.conf.beat_schedule = {
     'update-installment-statuses': {
         'task': 'plans.tasks.update_installment_statuses',
-        'schedule': crontab(minute=5, hour=0, nowfun=lambda: datetime.now(pytz.timezone('Asia/Riyadh'))),
+        'schedule': crontab(minute=5, hour=0, nowfun=get_asia_riyadh_now),
     },
     'check-upcoming-installments': {
         'task': 'plans.tasks.check_upcoming_installments_task',
-        'schedule': crontab(minute=0, hour=9, nowfun=lambda: datetime.now(pytz.timezone('Asia/Riyadh'))),  # Run at 9 AM every day
+        'schedule': crontab(minute=0, hour=9, nowfun=get_asia_riyadh_now),
     },
 }
