@@ -1,10 +1,10 @@
 from django.db import models
-from decimal import Decimal
 from .payment_plan import PaymentPlan
 
 class Installment(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
+        ('Due', 'Due'),
         ('Paid', 'Paid'),
         ('Late', 'Late')
     ]

@@ -16,6 +16,43 @@ services:
     networks:
       - bnpl_network
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - bnpl_network
+
+  celery_worker:
+    build: .
+    container_name: bnpl_celery_worker
+    command: celery -A core worker -l INFO
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    networks:
+      - bnpl_network
+
+  celery_beat:
+    build: .
+    container_name: bnpl_celery_beat
+    command: celery -A core beat -l INFO
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    networks:
+      - bnpl_network
+
   backend:
     build: .
     container_name: bnpl_backend
@@ -25,9 +62,13 @@ services:
       - 8000:8000
     depends_on:
       - db
+      - redis
     command: > 
       sh -c "python manage.py migrate &&
         python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     networks:
       - bnpl_network
 
