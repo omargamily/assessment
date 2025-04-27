@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
+    'corsheaders',
     'drf_yasg',  # Added for Swagger documentation
     'django_celery_beat',  # Added for Celery beat scheduler
     # Your apps
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -190,3 +192,14 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+
+# Set this to False if you are specifying allowed origins
+CORS_ALLOW_ALL_ORIGINS = False
+
+# List the origins that are allowed to make cross-site HTTP requests.
+# Example for local development with React default port:
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Your React frontend development server
+    "http://127.0.0.1:3000", # Another common local address
+    "http://app:3000",  # Frontend service in Docker compose
+]
