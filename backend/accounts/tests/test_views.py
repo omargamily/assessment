@@ -212,3 +212,25 @@ class UserListViewTests(APITestCase):
         response = self.client.get(self.url)
         
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+class MeViewTests(BaseAuthTestCase):
+    """Tests for the /me endpoint."""
+
+    def test_get_me_success(self):
+        """Test authenticated user can retrieve their details."""
+        url = reverse('accounts:me')
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['email'], self.user.email)
+        self.assertEqual(response.data['role'], self.user.role)
+        self.assertEqual(str(response.data['id']), str(self.user.id))
+        self.assertIn('created_at', response.data)
+        self.assertNotIn('password', response.data)
+
+    def test_get_me_unauthenticated(self):
+        """Test unauthenticated user cannot access /me."""
+        url = reverse('accounts:me')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
