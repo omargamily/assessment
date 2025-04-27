@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import PlanDetails from "../components/PlanDetails";
 import DashboardCalendarGrid from "../components/DashboardCalendarGrid";
 import InstallmentDetails from "../components/InstallmentDetails";
 import { getPlans } from "../api";
