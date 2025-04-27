@@ -194,12 +194,14 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
 # Set this to False if you are specifying allowed origins
-CORS_ALLOW_ALL_ORIGINS = False
+if DJANGO_ENVIRONMENT == 'production':
+    CORS_ALLOW_ALL_ORIGINS = False
+else:
+    CORS_ALLOW_ALL_ORIGINS = True
 
-# List the origins that are allowed to make cross-site HTTP requests.
-# Example for local development with React default port:
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Your React frontend development server
-    "http://127.0.0.1:3000", # Another common local address
-    "http://app:3000",  # Frontend service in Docker compose
-]
+if DJANGO_ENVIRONMENT == 'production':
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",  # Your React frontend development server
+        "http://127.0.0.1:3000", # Another common local address
+        "http://app:3000",  # Frontend service in Docker compose
+    ]
