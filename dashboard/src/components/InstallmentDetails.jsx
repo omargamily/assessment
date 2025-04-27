@@ -4,7 +4,7 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 
 const InstallmentDetails = ({ installments }) => {
   const queryClient = useQueryClient();
-  const { user } = useCurrentUser();
+  const user = useCurrentUser();
 
   const isUser = user?.role === "user";
 
