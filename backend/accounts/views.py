@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
 from .serializers import UserDetailSerializer, UserRegistrationSerializer, UserListSerializer
-from .permissions import IsMerchantGroup
+from .permissions import IsMerchantRole
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -10,7 +10,7 @@ class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
 
 class UserListView(generics.ListAPIView):
-    permission_classes = [permissions.IsAuthenticated, IsMerchantGroup]
+    permission_classes = [permissions.IsAuthenticated, IsMerchantRole]
     serializer_class = UserListSerializer
     queryset = User.objects.filter(role='user')
 

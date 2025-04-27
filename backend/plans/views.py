@@ -2,6 +2,7 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework import status
+from accounts.permissions import IsMerchantRole, IsUserRole, IsOwnerOrMerchantOfPlan
 from .models import PaymentPlan, Installment
 from .serializers import PaymentPlanCreateSerializer, PaymentPlanListSerializer, InstallmentPaySerializer, InstallmentSerializer
 from .services import pay_installment
@@ -10,29 +11,15 @@ from django.http import Http404
 
 User = get_user_model()
 
-class IsMerchantUser(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return bool(
-            request.user and
-            request.user.is_authenticated and
-            request.user.groups.filter(name='Merchant').exists() 
-        )
-
-class IsUserInUserGroup(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return bool(
-            request.user and
-            request.user.is_authenticated and
-            request.user.groups.filter(name='User').exists()
-        )
 
 class PaymentPlanCreateView(generics.CreateAPIView):
     serializer_class = PaymentPlanCreateSerializer
-    permission_classes = [permissions.IsAuthenticated, IsMerchantUser]
+    permission_classes = [permissions.IsAuthenticated, IsMerchantRole]
 
     def perform_create(self, serializer):
         serializer.save(merchant=self.request.user)
-        
+
+
 class PaymentPlanListView(generics.ListAPIView):
     serializer_class = PaymentPlanListSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -41,29 +28,33 @@ class PaymentPlanListView(generics.ListAPIView):
         user = self.request.user
         queryset = PaymentPlan.objects.none()
 
-        # Check user group membership for filtering
-        if user.groups.filter(name='Merchant').exists():
-            # Merchants see plans they created
+        if user.role == 'merchant':
             queryset = PaymentPlan.objects.filter(merchant=user)
-        elif user.groups.filter(name='User').exists():
-            # Users see plans assigned to them
+        elif user.role == 'user':
             queryset = PaymentPlan.objects.filter(user=user)
 
         return queryset.prefetch_related('installments').order_by('-created_at')
 
+
+class PaymentPlanDetailView(generics.RetrieveAPIView):
+    queryset = PaymentPlan.objects.all().prefetch_related('installments')
+    serializer_class = PaymentPlanListSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrMerchantOfPlan]
+    lookup_field = 'id'
+
+
 class InstallmentPayView(generics.CreateAPIView):
     serializer_class = InstallmentPaySerializer
-    permission_classes = [permissions.IsAuthenticated, IsUserInUserGroup]
+    permission_classes = [permissions.IsAuthenticated, IsUserRole]
     queryset = Installment.objects.all()
     lookup_url_kwarg = 'id'
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        
-        # Skip queryset lookup during schema generation
+
         if getattr(self, 'swagger_fake_view', False):
             return context
-            
+
         installment_id = self.kwargs.get('id')
         if installment_id:
             try:
@@ -76,7 +67,7 @@ class InstallmentPayView(generics.CreateAPIView):
         installment_id = self.kwargs.get('id')
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
             updated_installment = pay_installment(installment_id, request.user.id)
             return Response(InstallmentSerializer(updated_installment).data)

@@ -22,7 +22,6 @@ class PaymentPlanCreateViewTests(APITestCase):
             password='password123',
             role='merchant'
         )
-        self.merchant.groups.add(self.merchant_group)
 
         # Create a regular user
         self.user = User.objects.create_user(
@@ -30,7 +29,6 @@ class PaymentPlanCreateViewTests(APITestCase):
             password='password123',
             role='user'
         )
-        self.user.groups.add(self.user_group)
 
         # Create another merchant for testing unauthorized access
         self.other_merchant = User.objects.create_user(
@@ -38,7 +36,6 @@ class PaymentPlanCreateViewTests(APITestCase):
             password='password123',
             role='merchant'
         )
-        self.other_merchant.groups.add(self.merchant_group)
 
         self.valid_data = {
             'user': self.user.pk, 
