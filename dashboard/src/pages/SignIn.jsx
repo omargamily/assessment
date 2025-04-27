@@ -14,7 +14,7 @@ const SignInScreen = () => {
         localStorage.setItem("refresh", data.refresh);
         console.log("navigating to dashboard");
 
-        navigate("/dashboard");
+        navigate("/");
       }
     },
     onError: (error) => {

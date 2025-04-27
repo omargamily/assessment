@@ -22,8 +22,8 @@ const DashboardContent = ({ title, children }) => {
             </li>
             <li>
               <Link
-                to="/home"
-                className={`text-gray-600 hover:text-gray-800 border-b-2 ${location.pathname === "/home" ? "border-blue-500" : "border-transparent"} py-2 px-4 transition-colors duration-200`}
+                to="/"
+                className={`text-gray-600 hover:text-gray-800 border-b-2 ${location.pathname === "/" ? "border-blue-500" : "border-transparent"} py-2 px-4 transition-colors duration-200`}
               >
                 Home
               </Link>

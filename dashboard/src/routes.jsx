@@ -2,6 +2,7 @@ import HomePage from "./pages/Home.jsx";
 import SignInScreen from "./pages/SignIn.jsx";
 import SignUpScreen from "./pages/Signup.jsx";
 import PlansPage from "./pages/PlansPage.jsx"; // Import the new Plans page
+import CreatePlanPage from "./pages/CreatePlan.jsx";
 
 const routes = [
   {
@@ -15,13 +16,18 @@ const routes = [
     protected: false,
   },
   {
-    path: "/home",
+    path: "/",
     element: <HomePage />,
     protected: true,
   },
   {
     path: "/plans",
     element: <PlansPage />,
+    protected: true,
+  },
+  {
+    path: "/create-plan",
+    element: <CreatePlanPage />,
     protected: true,
   },
   {

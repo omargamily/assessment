@@ -5,6 +5,7 @@ import DashboardCalendarGrid from "../components/DashboardCalendarGrid";
 import InstallmentDetails from "../components/InstallmentDetails";
 import { getPlans } from "../api";
 import DashboardContent from "../components/DashboardContent";
+import { useNavigate } from "react-router-dom";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -13,6 +14,7 @@ function classNames(...classes) {
 const PlansPage = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [selectedInstallmentsList, setSelectedInstallmentsList] = useState([]);
+  const navigate = useNavigate();
 
   const {
     data: plans,
@@ -76,6 +78,18 @@ const PlansPage = () => {
 
   return (
     <DashboardContent title="Your Plans">
+      {/* Add Button Section */}
+      <div className="flex justify-end mb-4">
+        <button
+          type="button"
+          className="bg-button-primary-bg hover:bg-button-primary-hover-bg text-button-text-on-blue font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline"
+          onClick={() => navigate("/create-plan")}
+        >
+          Create Plan
+        </button>
+      </div>
+
+      {/* Existing Content */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         <div className="md:col-span-1 pr-6 md:border-r border-divider">
           <h3 className="text-lg font-semibold text-text-primary mb-4">
@@ -125,7 +139,7 @@ const PlansPage = () => {
             <>
               <div className="pb-6 mb-6 border-b border-divider">
                 <h3 className="text-lg font-semibold text-text-primary mb-2">
-                  Installment Calendar
+                  Installment Calendar{" "}
                   <span role="img" aria-label="calendar">
                     📅
                   </span>
