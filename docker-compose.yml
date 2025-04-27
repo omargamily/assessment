@@ -1,4 +1,3 @@
-# docker-compose.yml (Simplified Command)
 version: '3.8'
 
 services:
@@ -18,6 +17,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    container_name: bnpl_redis # Added container name for consistency
     ports:
       - "6379:6379"
     networks:
@@ -69,6 +69,18 @@ services:
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    networks:
+      - bnpl_network
+
+  app:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: bnpl_frontend_app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
     networks:
       - bnpl_network
 
