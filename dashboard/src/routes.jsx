@@ -1,6 +1,7 @@
-import DashboardPage from "./pages/Dashboard.jsx";
+import HomePage from "./pages/Home.jsx";
 import SignInScreen from "./pages/SignIn.jsx";
 import SignUpScreen from "./pages/Signup.jsx";
+import PlansPage from "./pages/PlansPage.jsx"; // Import the new Plans page
 
 const routes = [
   {
@@ -14,8 +15,13 @@ const routes = [
     protected: false,
   },
   {
-    path: "/dashboard",
-    element: <DashboardPage />,
+    path: "/home",
+    element: <HomePage />,
+    protected: true,
+  },
+  {
+    path: "/plans",
+    element: <PlansPage />,
     protected: true,
   },
   {

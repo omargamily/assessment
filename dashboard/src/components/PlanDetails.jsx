@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 const PlanDetails = ({ plan }) => {
   return (
     <div className="bg-background-white p-4 rounded-lg border border-divider my-6">
-      <p className="text-text-primary text-3xl text-center mb-4">
+      <p className="text-text-primary text-xl text-center mb-4">
         {plan?.user_email}
       </p>
       <p className="text-text-secondary mb-3">

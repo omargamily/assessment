@@ -23,3 +23,7 @@
 --color-modal-heading-text: #111827;
 --color-modal-body-text: #6B7280;
 }
+
+html{
+    background-color: oklch(0.98 0 0);
+}
