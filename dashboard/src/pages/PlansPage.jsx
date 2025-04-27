@@ -6,6 +6,7 @@ import InstallmentDetails from "../components/InstallmentDetails";
 import { getPlans } from "../api";
 import DashboardContent from "../components/DashboardContent";
 import { useNavigate } from "react-router-dom";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -15,6 +16,7 @@ const PlansPage = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [selectedInstallmentsList, setSelectedInstallmentsList] = useState([]);
   const navigate = useNavigate();
+  const user = useCurrentUser();
 
   const {
     data: plans,
@@ -76,17 +78,21 @@ const PlansPage = () => {
     setSelectedInstallmentsList([]);
   };
 
+  const isMerchant = user?.role === "merchant";
+
   return (
     <DashboardContent title="Your Plans">
       {/* Add Button Section */}
       <div className="flex justify-end mb-4">
-        <button
-          type="button"
-          className="bg-button-primary-bg hover:bg-button-primary-hover-bg text-button-text-on-blue font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline"
-          onClick={() => navigate("/create-plan")}
-        >
-          Create Plan
-        </button>
+        {isMerchant && (
+          <button
+            type="button"
+            className="bg-button-primary-bg hover:bg-button-primary-hover-bg text-button-text-on-blue font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline"
+            onClick={() => navigate("/create-plan")}
+          >
+            Create Plan
+          </button>
+        )}
       </div>
 
       {/* Existing Content */}

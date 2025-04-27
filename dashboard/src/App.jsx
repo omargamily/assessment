@@ -2,10 +2,6 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import routes from "./routes.jsx";
 
-export const PageWithHeader = ({ children }) => (
-  <div className="flex h-full flex-col">{children}</div>
-);
-
 function App() {
   return (
     <Router>

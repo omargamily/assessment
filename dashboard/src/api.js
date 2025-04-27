@@ -1,11 +1,12 @@
 const API_URL = "http://127.0.0.1:8000/api";
 
-const getAccessToken = () => localStorage.getItem("access");
-const getRefreshToken = () => localStorage.getItem("refresh");
-const setAccessToken = (token) => localStorage.setItem("access", token);
-const setRefreshToken = (token) => localStorage.setItem("refresh", token);
+export const getAccessToken = () => localStorage.getItem("access");
+export const getRefreshToken = () => localStorage.getItem("refresh");
+export const setAccessToken = (token) => localStorage.setItem("access", token);
+export const setRefreshToken = (token) =>
+  localStorage.setItem("refresh", token);
 
-const clearTokens = () => {
+export const clearTokens = () => {
   localStorage.removeItem("access");
   localStorage.removeItem("refresh");
 };
@@ -159,4 +160,8 @@ export const refresh = async (token) => {
     body: JSON.stringify(token),
   });
   return processResponse(response);
+};
+
+export const getCurrentUser = async () => {
+  return fetchAuthenticated(`${API_URL}/accounts/me/`);
 };

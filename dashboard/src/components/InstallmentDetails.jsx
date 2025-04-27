@@ -1,8 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { payInstallment } from "../api";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 
 const InstallmentDetails = ({ installments }) => {
   const queryClient = useQueryClient();
+  const { user } = useCurrentUser();
+
+  const isUser = user?.role === "user";
 
   const mutation = useMutation({
     mutationFn: payInstallment,
@@ -67,15 +71,17 @@ const InstallmentDetails = ({ installments }) => {
                   maximumFractionDigits: 2,
                 }).format(installment.amount)}
               </p>
-              <button
-                className="bg-button-primary-bg hover:bg-button-primary-hover-bg text-button-text-on-blue font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={() =>
-                  mutation.mutate({ id: installment.id, paymentData: {} })
-                }
-                disabled={isProcessing}
-              >
-                {isProcessing ? "Processing..." : "Pay"}
-              </button>
+              {isUser && (
+                <button
+                  className="bg-button-primary-bg hover:bg-button-primary-hover-bg text-button-text-on-blue font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() =>
+                    mutation.mutate({ id: installment.id, paymentData: {} })
+                  }
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? "Processing..." : "Pay"}
+                </button>
+              )}
               {hasError && (
                 <p className="text-red-500 text-xs text-center mt-2">
                   Payment failed. Please try again.
