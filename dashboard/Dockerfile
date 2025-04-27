@@ -1,24 +1,13 @@
-FROM node:18 as builder
-
-RUN mkdir -p /workspace/app && chown node:node /workspace -R
-
-USER node:node
-
-WORKDIR /workspace/app
-
-# Pre cache packages
-COPY --chown=node:node . /workspace/app
-
-RUN npm install && npm run build
-
-FROM node:18
-
-RUN npm i -g serve
-
-COPY --from=builder --chown=node:node /workspace/app/dist /app
-
-USER node:node
-
+FROM node:18-alpine AS build
 WORKDIR /app
+COPY package.json yarn.lock* package-lock.json* ./
+RUN yarn install --frozen-lockfile || npm ci
+COPY . .
+RUN yarn build || npm run build
 
-ENTRYPOINT ["serve", "-p", "3000",  "-s", "/app"]
+FROM node:18-alpine
+WORKDIR /app
+RUN npm install -g serve
+COPY --from=build /app/dist ./dist
+EXPOSE 3000
+CMD ["serve", "-s", "dist", "-l", "3000"]

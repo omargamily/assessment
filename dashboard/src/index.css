@@ -1,1 +1,25 @@
 @import 'tailwindcss';
+
+@theme{
+/* Background, Borders and dividers */
+--color-border-default: #E5E7EB;
+--color-border-secondary: #D1D5DB;
+--color-divider: #E5E7EB;
+--color-background-white: #FFFFFF;
+/* text */
+--color-text-primary: #111827;
+--color-text-secondary: #6B7280;
+/* input */
+--color-input-focus: #93C5FD;
+/* button */
+--color-button-primary-bg: #3B82F6;
+--color-button-primary-hover-bg: #2563EB;
+--color-button-text-on-blue: #FFFFFF;
+/* calendar */
+--color-calendar-highlight-bg: #DBEAFE;
+--color-calendar-highlight-ring: #BFDBFE;
+/* modal */
+--color-modal-background: #FFFFFF;
+--color-modal-heading-text: #111827;
+--color-modal-body-text: #6B7280;
+}
