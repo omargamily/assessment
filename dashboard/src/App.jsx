@@ -9,7 +9,7 @@ export const PageWithHeader = ({ children }) => (
 function App() {
   return (
     <Router>
-      <div className="App">
+      <div className="bg-gray-50 h-screen">
         <Routes>
           {routes.map((route, index) => {
             if (route.protected) {

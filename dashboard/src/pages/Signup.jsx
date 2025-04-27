@@ -13,14 +13,8 @@ const SignUpScreen = () => {
 
   const mutation = useMutation({
     mutationFn: registerUser,
-    onSuccess: (data) => {
-      if (data && data.accessToken && data.refreshToken) {
-        localStorage.setItem("access", data.accessToken);
-        localStorage.setItem("refresh", data.refreshToken);
-        navigate("/dashboard");
-      } else {
-        navigate("/signin");
-      }
+    onSuccess: () => {
+      navigate("/signin");
     },
     onError: (error) => {
       console.error("Registration failed in service:", error);

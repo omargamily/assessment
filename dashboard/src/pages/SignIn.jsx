@@ -8,13 +8,13 @@ const SignInScreen = () => {
     mutationFn: signIn,
     onSuccess: (data) => {
       console.log("Sign-in successful:", data);
-      if (data && data.accessToken && data.refreshToken) {
-        localStorage.setItem("accessToken", data.accessToken);
-        localStorage.setItem("refreshToken", data.refreshToken);
-        console.log("Tokens saved to local storage!");
+
+      if (data && data.access && data.refresh) {
+        localStorage.setItem("access", data.access);
+        localStorage.setItem("refresh", data.refresh);
+        console.log("navigating to dashboard");
+
         navigate("/dashboard");
-      } else {
-        console.warn("Sign-in successful but no tokens received in service.");
       }
     },
     onError: (error) => {
